@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "name": "CharacterInputActions",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "05b5a77b-1c5c-4bd6-afb5-561c1e14e88d",
+            "actions": [
+                {
+                    "name": "SpinSpeed",
+                    "type": "Value",
+                    "id": "1195c745-2dbd-4d01-abfa-5e4e7ddd9465",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "1D Axis",
+                    "id": "cd0f3df7-09e9-49c7-894a-266a68241b59",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SpinSpeed",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Negative",
+                    "id": "08497b5c-be55-40c9-96a6-54afe111e9fb",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SpinSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Positive",
+                    "id": "c1da166a-d752-4bd9-917f-afdf5e556a2d",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SpinSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
