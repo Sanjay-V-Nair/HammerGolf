@@ -1,45 +1,52 @@
 using UnityEngine;
 
-public class CharacterRecoveryController : MonoBehaviour
+namespace HammerGolf
 {
-    #region Serialize Fields
+    public class CharacterRecoveryController : MonoBehaviour
+    {
+        #region Serialize Fields
 
-    public BallStateObserver ballObserver;
-    public BallThrowController ballController;
+        public BallStateObserver ballObserver;
+        public BallThrowController ballController;
 
-    #endregion
+        #endregion
 
-    #region Events
+        #region Events
 
-    public event System.Action RecoveryComplete;
+        public event System.Action RecoveryComplete;
 
-    #endregion
+        #endregion
 
-    #region Cache
+        #region Cache
 
-    Transform player;
+        Transform player;
 
-    #endregion
+        #endregion
 
-    void Awake() {
-        if (player == null) player = transform;
+        void Awake()
+        {
+            if (player == null) player = transform;
 
-        if (ballObserver == null || ballController == null) {
-            return;
+            if (ballObserver == null || ballController == null)
+            {
+                return;
+            }
+
+            ballObserver.OnBallAtRest += HandleBallAtRest;
         }
 
-        ballObserver.OnBallAtRest += HandleBallAtRest;
-    }
+        void OnDestroy()
+        {
+            if (ballObserver == null) return;
+            ballObserver.OnBallAtRest -= HandleBallAtRest;
+        }
 
-    void OnDestroy() {
-        if (ballObserver == null) return;
-        ballObserver.OnBallAtRest -= HandleBallAtRest;
-    }
+        void HandleBallAtRest(Vector3 ballRestPosition)
+        {
+            player.position = new Vector3(ballRestPosition.x, player.position.y, ballRestPosition.z);
+            ballController.ResetToOrbit();
+            RecoveryComplete?.Invoke();
+        }
 
-    void HandleBallAtRest(Vector3 ballRestPosition) {
-        player.position = new Vector3(ballRestPosition.x, player.position.y, ballRestPosition.z);
-        ballController.ResetToOrbit();
-        RecoveryComplete?.Invoke();
-    }
-
+    } 
 }

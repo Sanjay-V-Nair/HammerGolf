@@ -1,107 +1,144 @@
 using System;
 using UnityEngine;
+using UnityEngine.Windows;
 
-public class CameraController : MonoBehaviour
+namespace HammerGolf
 {
-    [Header("Targets")]
-    [SerializeField] Transform player;
-    [SerializeField] Rigidbody ball;
-
-    [Header("Player Follow")]
-    [SerializeField] Vector3 playerOffset = new(0f, 5f, -8f);
-
-    [Header("Ball Follow")]
-    [SerializeField] float ballDistance = 10f;
-    [SerializeField] float ballHeight = 4f;
-
-    [Header("Smoothing")]
-    [SerializeField] float positionSmoothSpeed = 8f;
-
-    CameraMode currentMode = CameraMode.FollowPlayer;
-
-    CameraEventsController _camEvents => CameraEventsController.Instance;
-
-    private void Start()
+    public class CameraController : MonoBehaviour
     {
-        CameraEventsController.SwitchToBall += OnSwitchToBall;
-        CameraEventsController.SwitchToPlayer += OnSwitchToPlayer;
-    }
+        #region SerializeFields
 
-    private void OnDestroy()
-    {
-        CameraEventsController.SwitchToBall -= OnSwitchToBall;
-        CameraEventsController.SwitchToPlayer -= OnSwitchToPlayer;
-    }
+        [Header("Targets")]
+        [SerializeField] Transform player;
+        [SerializeField] Rigidbody ball;
 
-    private void OnSwitchToBall(object sender, EventArgs e)
-    {
-        SwitchToBall();
-    }
+        [Header("Player Follow")]
+        [SerializeField] Vector3 playerOffset = new(0f, 5f, -8f);
 
-    private void OnSwitchToPlayer(object sender, EventArgs e)
-    {
-        SwitchToPlayer();
-    }
+        [Header("Ball Follow")]
+        [SerializeField] float ballDistance = 10f;
+        [SerializeField] float ballHeight = 4f;
 
-    public void SwitchToBall()
-    {
-        currentMode = CameraMode.FollowBall;
-    }
+        [Header("Smoothing")]
+        [SerializeField] float positionSmoothSpeed = 8f;
 
-    public void SwitchToPlayer()
-    {
-        currentMode = CameraMode.FollowPlayer;
-    }
+        [Header("Orbit")]
+        [SerializeField] float distance = 8f;
+        [SerializeField] float heightOffset = 2f;
+        [SerializeField] float mouseSensitivity = 150f;
+        [SerializeField] float minPitch = -20f;
+        [SerializeField] float maxPitch = 70f;
 
-    private void LateUpdate()
-    {
-        switch (currentMode)
+        #endregion
+
+        #region Cache
+
+        CameraMode currentMode = CameraMode.FollowPlayer;
+        Transform currentTarget;
+        float mouseYaw = 0f;
+        float mousePitch = 0f;
+        CameraEventsController _camEvents => CameraEventsController.Instance;
+        CharacterInputActions input => InputManager.Instance.CharInputActions;
+
+
+        #endregion
+
+        private void Start()
         {
-            case CameraMode.FollowPlayer:
-                UpdatePlayerCamera();
-                break;
+            currentTarget = player;
 
-            case CameraMode.FollowBall:
-                UpdateBallCamera();
-                break;
+            CameraEventsController.SwitchToBall += OnSwitchToBall;
+            CameraEventsController.SwitchToPlayer += OnSwitchToPlayer;
         }
-    }
 
-    private void UpdatePlayerCamera()
-    {
-        Vector3 targetPosition =
-            player.position + playerOffset;
+        private void OnDestroy()
+        {
+            CameraEventsController.SwitchToBall -= OnSwitchToBall;
+            CameraEventsController.SwitchToPlayer -= OnSwitchToPlayer;
+        }
 
-        transform.position =
-            Vector3.Lerp(
-                transform.position,
-                targetPosition,
-                positionSmoothSpeed * Time.deltaTime);
+        private void OnEnable()
+        {
+            input.Enable();
+            transform.LookAt(currentTarget);
+        }
 
-        transform.LookAt(player);
-    }
+        private void OnDisable()
+        {
+            input.Disable();
+        }
 
-    private void UpdateBallCamera()
-    {
-        Vector3 velocity =
-            ball.linearVelocity;
+        private void OnSwitchToBall(object sender, EventArgs e)
+        {
+            SwitchToBall();
+        }
 
-        Vector3 direction =
-            velocity.sqrMagnitude > 0.1f
-                ? velocity.normalized
-                : ball.transform.forward;
+        private void OnSwitchToPlayer(object sender, EventArgs e)
+        {
+            SwitchToPlayer();
+        }
 
-        Vector3 targetPosition =
-            ball.position
-            - direction * ballDistance
-            + Vector3.up * ballHeight;
+        public void SwitchToBall()
+        {
+            currentMode = CameraMode.FollowBall;
+            currentTarget = ball.transform;
 
-        transform.position =
-            Vector3.Lerp(
-                transform.position,
-                targetPosition,
-                positionSmoothSpeed * Time.deltaTime);
+        }
 
-        transform.LookAt(ball.position);
-    }
+        public void SwitchToPlayer()
+        {
+            currentMode = CameraMode.FollowPlayer;
+            currentTarget = player;
+        }
+
+        private void LateUpdate()
+        {
+            OrbitTarget();
+        }
+
+        private void OrbitTarget()
+        {
+            if (currentTarget == null)
+                return;
+
+            Vector2 lookInput =
+                input.Gameplay.Look.ReadValue<Vector2>();
+
+            mouseYaw +=
+                lookInput.x * mouseSensitivity * Time.deltaTime;
+
+            mousePitch -=
+                lookInput.y * mouseSensitivity * Time.deltaTime;
+
+            mousePitch = Mathf.Clamp(
+                mousePitch,
+                minPitch,
+                maxPitch);
+
+            Vector3 pivot =
+                currentTarget.position +
+                Vector3.up * heightOffset;
+
+            Quaternion rotation =
+                Quaternion.Euler(
+                    mousePitch,
+                    mouseYaw,
+                    0f);
+
+            Vector3 desiredPosition =
+                pivot +
+                rotation * new Vector3(
+                    0f,
+                    0f,
+                    -distance);
+
+            transform.position =
+                Vector3.Lerp(
+                    transform.position,
+                    desiredPosition,
+                    positionSmoothSpeed * Time.deltaTime);
+
+            transform.LookAt(pivot);
+        }
+    } 
 }

@@ -2,127 +2,139 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-public class CharacterSpinController : MonoBehaviour
+namespace HammerGolf
 {
-    #region SerializedFields
-
-    [Header("Spin tuning")]
-    [SerializeField] float spinBuildRate = 25f;
-    [SerializeField] float spinDecayRate = 60f;
-    [SerializeField] float maxSpinSpeed = 720f;
-
-    [Header("References")]
-    [SerializeField] CharacterRecoveryController recoveryController;
-
-    // ---------------------------------------------------------------
-    #endregion
-
-    #region Events
-
-    public event System.Action ChargeStarted;
-
-    // arg 1: normalized spin speed (0-1) | arg 2: facing angle (degrees)
-    public event System.Action<float, float> OnSpinUpdated;
-    public event System.Action<float, float> OnReleased;
-
-
-    // ---------------------------------------------------------------
-
-    #endregion
-
-    #region Cache
-
-    public bool IsCharging { get => spinState == SpinState.Charging; }
-    public bool CanCharge { get => spinState == SpinState.Idle; }
-    CameraEventsController _camEvents => CameraEventsController.Instance;
-
-    SpinState spinState;
-
-    float spinSpeed;
-    float facingAngle;
-
-    CharacterInputActions input;
-
-    // ---------------------------------------------------------------
-
-    #endregion
-
-    void Awake() {
-        facingAngle = transform.eulerAngles.y;
-        spinState = SpinState.Idle;
-        input = new();
-    }
-
-    private void OnEnable()
+    public class CharacterSpinController : MonoBehaviour
     {
-        input.Enable();
-    }
+        #region SerializedFields
 
-    private void OnDisable()
-    {
-        input.Disable();
-    }
+        [Header("Spin tuning")]
+        [SerializeField] float spinBuildRate = 25f;
+        [SerializeField] float spinDecayRate = 60f;
+        [SerializeField] float maxSpinSpeed = 720f;
 
-    private void Start() {
-        recoveryController.RecoveryComplete += HandleRecoveryComplete;
-    }
+        [Header("References")]
+        [SerializeField] CharacterRecoveryController recoveryController;
 
-    private void OnDestroy() {
-        recoveryController.RecoveryComplete -= HandleRecoveryComplete;
-    }
+        // ---------------------------------------------------------------
+        #endregion
 
-    void Update()
-    {
-        Debug.Log($"Current spin state: {spinState}");
+        #region Events
 
-        if (!IsCharging && CanCharge) {
-            if (Mouse.current.leftButton.wasPressedThisFrame) {
-                BeginCharge();
+        public event System.Action ChargeStarted;
+
+        // arg 1: normalized spin speed (0-1) | arg 2: facing angle (degrees)
+        public event System.Action<float, float> OnSpinUpdated;
+        public event System.Action<float, float> OnReleased;
+
+
+        // ---------------------------------------------------------------
+
+        #endregion
+
+        #region Cache
+
+        public bool IsCharging { get => spinState == SpinState.Charging; }
+        public bool CanCharge { get => spinState == SpinState.Idle; }
+        CameraEventsController _camEvents => CameraEventsController.Instance;
+
+        SpinState spinState;
+
+        float spinSpeed;
+        float facingAngle;
+
+        CharacterInputActions input => InputManager.Instance.CharInputActions;
+
+        // ---------------------------------------------------------------
+
+        #endregion
+
+        void Awake()
+        {
+            facingAngle = transform.eulerAngles.y;
+            spinState = SpinState.Idle;
+        }
+
+        private void OnEnable()
+        {
+        }
+
+        private void OnDisable()
+        {
+        }
+
+        private void Start()
+        {
+            recoveryController.RecoveryComplete += HandleRecoveryComplete;
+        }
+
+        private void OnDestroy()
+        {
+            recoveryController.RecoveryComplete -= HandleRecoveryComplete;
+        }
+
+        void Update()
+        {
+            Debug.Log($"Current spin state: {spinState}");
+
+            if (!IsCharging && CanCharge)
+            {
+                if (Mouse.current.leftButton.wasPressedThisFrame)
+                {
+                    BeginCharge();
+                }
+                return;
             }
-            return;
+
+            if (IsCharging)
+            {
+                Charge();
+            }
+
+            if (IsCharging && Mouse.current.leftButton.wasReleasedThisFrame)
+            {
+                EndCharge();
+            }
         }
 
-        if (IsCharging) {
-            Charge();
+        void BeginCharge()
+        {
+            spinState = SpinState.Charging;
+            spinSpeed = 0f;
+            ChargeStarted?.Invoke();
         }
 
-        if (IsCharging && Mouse.current.leftButton.wasReleasedThisFrame) {
-            EndCharge();
-        }
-    }
+        void Charge()
+        {
+            float speedInput = input.Gameplay.SpinSpeed.ReadValue<float>();
+            Debug.Log($"Speed charInputActions value: {speedInput}");
 
-    void BeginCharge() {
-        spinState = SpinState.Charging;
-        spinSpeed = 0f;
-        ChargeStarted?.Invoke();
-    }
+            spinSpeed += speedInput * spinBuildRate * Time.deltaTime;
+            spinSpeed = Mathf.Clamp(spinSpeed, -maxSpinSpeed, maxSpinSpeed);
 
-    void Charge() {
-        float speedInput = input.Gameplay.SpinSpeed.ReadValue<float>();
-        Debug.Log($"Speed input value: {speedInput}");
+            if (speedInput == 0)
+            {
+                spinSpeed -= spinDecayRate * Time.deltaTime;
+                spinSpeed = Mathf.Clamp(spinSpeed, 0f, maxSpinSpeed);
+            }
 
-        spinSpeed += speedInput * spinBuildRate * Time.deltaTime;
-        spinSpeed = Mathf.Clamp(spinSpeed, -maxSpinSpeed, maxSpinSpeed);
+            facingAngle = (facingAngle + spinSpeed * Time.deltaTime) % 360f;
+            transform.rotation = Quaternion.Euler(0f, facingAngle, 0f);
 
-        if (speedInput == 0) {
-            spinSpeed -= spinDecayRate * Time.deltaTime;
-            spinSpeed = Mathf.Clamp(spinSpeed, 0f, maxSpinSpeed); 
+            OnSpinUpdated?.Invoke(spinSpeed / maxSpinSpeed, facingAngle);
         }
 
-        facingAngle = (facingAngle + spinSpeed * Time.deltaTime) % 360f;
-        transform.rotation = Quaternion.Euler(0f, facingAngle, 0f);
+        void EndCharge()
+        {
+            spinState = SpinState.Recovery;
+            OnReleased?.Invoke(spinSpeed / maxSpinSpeed, facingAngle);
+            CameraEventsController.SwitchToBall?.Invoke(this, null);
+        }
 
-        OnSpinUpdated?.Invoke(spinSpeed / maxSpinSpeed, facingAngle);
-    }
-
-    void EndCharge() {
-        spinState = SpinState.Recovery;
-        OnReleased?.Invoke(spinSpeed / maxSpinSpeed, facingAngle);
-        CameraEventsController.SwitchToBall?.Invoke(this, null);
-    }
-
-    void HandleRecoveryComplete() {
-        spinState = SpinState.Idle;
-    }
+        void HandleRecoveryComplete()
+        {
+            spinState = SpinState.Idle;
+        }
+    } 
 }
 
