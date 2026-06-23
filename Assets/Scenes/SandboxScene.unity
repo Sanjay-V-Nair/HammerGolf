@@ -2482,6 +2482,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpringPad
       objectReference: {fileID: 0}
+    - target: {fileID: 6691505890235284723, guid: 04049b87fe4bb13448b5d5a7da263c73, type: 3}
+      propertyPath: springForce
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8795780078822621928, guid: 04049b87fe4bb13448b5d5a7da263c73, type: 3}
       propertyPath: m_text
       value: Spring Pad
