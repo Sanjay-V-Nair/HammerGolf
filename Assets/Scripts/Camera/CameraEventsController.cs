@@ -2,17 +2,21 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CameraEventsController : MonoBehaviour
+namespace HammerGolf
 {
-    public static CameraEventsController Instance { get; private set; }
-
-    public static EventHandler SwitchToBall;
-    public static EventHandler SwitchToPlayer;
-
-    private void Awake()
+    public class CameraEventsController : MonoBehaviour
     {
-        if (Instance == null) { 
-            Instance = this;
+        public static CameraEventsController Instance { get; private set; }
+
+        public static EventHandler SwitchToBall;
+        public static EventHandler SwitchToPlayer;
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
         }
-    }
+    } 
 }

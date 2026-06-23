@@ -1,64 +1,76 @@
 using UnityEngine;
 
-public class BallStateObserver : MonoBehaviour
+namespace HammerGolf
 {
-    #region Serialize Feidls
-    [Header("References")]
-    [SerializeField] BallThrowController ballController;
+    public class BallStateObserver : MonoBehaviour
+    {
+        #region Serialize Feidls
+        [Header("References")]
+        [SerializeField] BallThrowController ballController;
 
-    [Header("Tuning")]
-    [SerializeField] float restVelocityThreshold = 0.15f;
-    [SerializeField] float restConfirmTime = 0.4f;
+        [Header("Tuning")]
+        [SerializeField] float restVelocityThreshold = 0.15f;
+        [SerializeField] float restConfirmTime = 0.4f;
 
-    #endregion
+        #endregion
 
-    #region Events
+        #region Events
 
-    public event System.Action<Vector3> OnBallAtRest;
+        public event System.Action<Vector3> OnBallAtRest;
 
-    #endregion
+        #endregion
 
-    #region Cache
+        #region Cache
 
-    Rigidbody trackedBall;
-    float restTimer;
-    private bool isTracking = false;
-    CameraEventsController _camEvents => CameraEventsController.Instance;
+        Rigidbody trackedBall;
+        float restTimer;
+        private bool isTracking = false;
+        CameraEventsController _camEvents => CameraEventsController.Instance;
 
-    #endregion
+        #endregion
 
-    void Awake() {
-        if (ballController == null) {
-            return;
-        }
-
-        ballController.OnThrown += BeginTracking;
-    }
-
-    void OnDestroy() {
-        if (ballController == null) return;
-        ballController.OnThrown -= BeginTracking;
-    }
-
-    void BeginTracking(Rigidbody ball) {
-        trackedBall = ball;
-        restTimer = 0f;
-        isTracking = true;
-    }
-
-    void FixedUpdate() {
-        if (!isTracking) return;
-
-        if (trackedBall.linearVelocity.magnitude < restVelocityThreshold) {
-            restTimer += Time.fixedDeltaTime;
-            if (restTimer >= restConfirmTime) {
-                enabled = false;
-                OnBallAtRest?.Invoke(trackedBall.position);
-                CameraEventsController.SwitchToPlayer?.Invoke(this, null);
+        void Awake()
+        {
+            if (ballController == null)
+            {
+                return;
             }
-        } else {
-            restTimer = 0f;
-        }
-    }
 
+            ballController.OnThrown += BeginTracking;
+        }
+
+        void OnDestroy()
+        {
+            if (ballController == null) return;
+            ballController.OnThrown -= BeginTracking;
+        }
+
+        void BeginTracking(Rigidbody ball)
+        {
+            trackedBall = ball;
+            restTimer = 0f;
+            isTracking = true;
+        }
+
+        void FixedUpdate()
+        {
+            if (!isTracking) return;
+
+            if (trackedBall.linearVelocity.magnitude < restVelocityThreshold)
+            {
+                restTimer += Time.fixedDeltaTime;
+                if (restTimer >= restConfirmTime)
+                {
+                    OnBallAtRest?.Invoke(trackedBall.position);
+                    CameraEventsController.SwitchToPlayer?.Invoke(this, null);
+                    isTracking = false;
+                }
+            }
+            else
+            {
+                restTimer = 0f;
+            }
+        }
+
+    } 
 }

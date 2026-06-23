@@ -1,100 +1,114 @@
 using UnityEngine;
 
-public class BallThrowController : MonoBehaviour
+namespace HammerGolf
 {
-    #region Serialize Fields
+    public class BallThrowController : MonoBehaviour
+    {
+        #region Serialize Fields
 
-    [Header("References")]
-    [SerializeField] CharacterSpinController spinController;
-    [SerializeField] Transform orbitPivot;
+        [Header("References")]
+        [SerializeField] CharacterSpinController spinController;
+        [SerializeField] Transform orbitPivot;
 
-    [Header("Orbit tuning")]
-    [SerializeField] float orbitRadius = 1.5f;
+        [Header("Orbit tuning")]
+        [SerializeField] float orbitRadius = 1.5f;
 
-    [Header("Throw")]
-    [Range(0f, 89f)] [SerializeField] float launchAngle = 35f;
-    [SerializeField] float minLaunchSpeed = 4f;
-    [SerializeField] float maxLaunchSpeed = 28f;
-
-
-    // ---------------------------------------------------------------
-    #endregion
-
-    #region Events
-
-    public event System.Action<Rigidbody> OnThrown;
+        [Header("Throw")]
+        [Range(0f, 89f)][SerializeField] float launchAngle = 35f;
+        [SerializeField] float minLaunchSpeed = 4f;
+        [SerializeField] float maxLaunchSpeed = 28f;
 
 
-    // ---------------------------------------------------------------
-    #endregion
+        // ---------------------------------------------------------------
+        #endregion
 
-    #region Cache
+        #region Events
 
-    Rigidbody rb;
+        public event System.Action<Rigidbody> OnThrown;
 
-    // ---------------------------------------------------------------
-    #endregion
 
-    void Awake() {
-        rb = GetComponent<Rigidbody>();
+        // ---------------------------------------------------------------
+        #endregion
 
-        if (spinController == null) {
-            return;
+        #region Cache
+
+        Rigidbody rb;
+
+        // ---------------------------------------------------------------
+        #endregion
+
+        void Awake()
+        {
+            rb = GetComponent<Rigidbody>();
+
+            if (spinController == null)
+            {
+                return;
+            }
+
+            if (orbitPivot == null) orbitPivot = spinController.transform;
+
+            spinController.OnSpinUpdated += HandleSpinUpdated;
+            spinController.OnReleased += HandleReleased;
         }
 
-        if (orbitPivot == null) orbitPivot = spinController.transform;
+        void OnDestroy()
+        {
+            if (spinController == null) return;
+            spinController.OnSpinUpdated -= HandleSpinUpdated;
+            spinController.OnReleased -= HandleReleased;
+        }
 
-        spinController.OnSpinUpdated += HandleSpinUpdated;
-        spinController.OnReleased += HandleReleased;
-    }
+        void Start()
+        {
+            SetOrbiting(true);
+            SnapToOrbit(orbitPivot.eulerAngles.y);
+        }
 
-    void OnDestroy() {
-        if (spinController == null) return;
-        spinController.OnSpinUpdated -= HandleSpinUpdated;
-        spinController.OnReleased -= HandleReleased;
-    }
+        void HandleSpinUpdated(float normalizedSpin, float facingAngle)
+        {
+            SnapToOrbit(facingAngle);
+        }
 
-    void Start() {
-        SetOrbiting(true);
-        SnapToOrbit(orbitPivot.eulerAngles.y);
-    }
+        void HandleReleased(float normalizedSpin, float facingAngle)
+        {
+            Launch(normalizedSpin, facingAngle);
+        }
 
-    void HandleSpinUpdated(float normalizedSpin, float facingAngle) {
-        SnapToOrbit(facingAngle);
-    }
+        void SnapToOrbit(float facingAngle)
+        {
+            Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
+            rb.MovePosition(orbitPivot.position + dir * orbitRadius);
+        }
 
-    void HandleReleased(float normalizedSpin, float facingAngle) {
-        Launch(normalizedSpin, facingAngle);
-    }
+        void Launch(float normalizedSpin, float facingAngle)
+        {
+            float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, normalizedSpin);
+            float horizontalSpeed = launchSpeed * Mathf.Cos(launchAngle * Mathf.Deg2Rad);
+            float verticalSpeed = launchSpeed * Mathf.Sin(launchAngle * Mathf.Deg2Rad);
 
-    void SnapToOrbit(float facingAngle) {
-        Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
-        rb.MovePosition(orbitPivot.position + dir * orbitRadius);
-    }
+            Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
 
-    void Launch(float normalizedSpin, float facingAngle) {
-        float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, normalizedSpin);
-        float horizontalSpeed = launchSpeed * Mathf.Cos(launchAngle * Mathf.Deg2Rad);
-        float verticalSpeed = launchSpeed * Mathf.Sin(launchAngle * Mathf.Deg2Rad);
+            SetOrbiting(false);
+            var force = dir.normalized * horizontalSpeed + Vector3.up * verticalSpeed;
+            rb.AddForce(force, ForceMode.VelocityChange);
 
-        Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
+            OnThrown?.Invoke(rb);
+        }
 
-        SetOrbiting(false);
-        rb.linearVelocity = dir.normalized * horizontalSpeed + Vector3.up * verticalSpeed;
+        void SetOrbiting(bool orbiting)
+        {
+            rb.isKinematic = orbiting;
+            rb.useGravity = !orbiting;
+        }
 
-        OnThrown?.Invoke(rb);
-    }
+        public void ResetToOrbit()
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            SetOrbiting(true);
+            SnapToOrbit(orbitPivot.eulerAngles.y);
+        }
 
-    void SetOrbiting(bool orbiting) {
-        rb.isKinematic = orbiting;
-        rb.useGravity = !orbiting;
-    }
-
-    public void ResetToOrbit() {
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        SetOrbiting(true);
-        SnapToOrbit(orbitPivot.eulerAngles.y);
-    }
-
+    } 
 }

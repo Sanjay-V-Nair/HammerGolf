@@ -1,7 +1,10 @@
 using UnityEngine;
 
-public enum CameraMode
+namespace HammerGolf
 {
-    FollowPlayer,
-    FollowBall
+	public enum CameraMode
+	{
+		FollowPlayer,
+		FollowBall
+	} 
 }
