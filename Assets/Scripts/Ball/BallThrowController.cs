@@ -90,7 +90,8 @@ namespace HammerGolf
             Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
 
             SetOrbiting(false);
-            rb.linearVelocity = dir.normalized * horizontalSpeed + Vector3.up * verticalSpeed;
+            var force = dir.normalized * horizontalSpeed + Vector3.up * verticalSpeed;
+            rb.AddForce(force, ForceMode.VelocityChange);
 
             OnThrown?.Invoke(rb);
         }
