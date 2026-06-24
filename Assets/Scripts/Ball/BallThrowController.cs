@@ -32,14 +32,16 @@ namespace HammerGolf
 
         #region Cache
 
-        Rigidbody rb;
+        Rigidbody _rb;
+        Vector3 _uninitializedVector = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+        Vector3 _lastThrownFrom = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
         // ---------------------------------------------------------------
         #endregion
 
         void Awake()
         {
-            rb = GetComponent<Rigidbody>();
+            _rb = GetComponent<Rigidbody>();
 
             if (spinController == null)
             {
@@ -78,7 +80,7 @@ namespace HammerGolf
         void SnapToOrbit(float facingAngle)
         {
             Vector3 dir = Quaternion.Euler(0f, facingAngle, 0f) * Vector3.forward;
-            rb.MovePosition(orbitPivot.position + dir * orbitRadius);
+            _rb.MovePosition(orbitPivot.position + dir * orbitRadius);
         }
 
         void Launch(float normalizedSpin, float facingAngle)
@@ -91,24 +93,36 @@ namespace HammerGolf
 
             SetOrbiting(false);
             var force = dir.normalized * horizontalSpeed + Vector3.up * verticalSpeed;
-            rb.AddForce(force, ForceMode.VelocityChange);
+            _rb.AddForce(force, ForceMode.VelocityChange);
 
-            OnThrown?.Invoke(rb);
+            OnThrown?.Invoke(_rb);
+
+            _lastThrownFrom = spinController.transform.position;
         }
 
         void SetOrbiting(bool orbiting)
         {
-            rb.isKinematic = orbiting;
-            rb.useGravity = !orbiting;
+            _rb.isKinematic = orbiting;
+            _rb.useGravity = !orbiting;
         }
 
         public void ResetToOrbit()
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            _rb.linearVelocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
             SetOrbiting(true);
             SnapToOrbit(orbitPivot.eulerAngles.y);
         }
 
+        public void ReturnToLastShot()
+        {
+            _rb.linearVelocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
+
+            spinController.transform.position = _lastThrownFrom;
+            transform.position = _lastThrownFrom;
+
+            SetOrbiting(true);
+        }
     } 
 }
