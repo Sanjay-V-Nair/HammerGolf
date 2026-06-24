@@ -1081,8 +1081,8 @@
     "m_ObjectId": "2598341674d64f278481d3a86afd7c22",
     "m_Title": "Texture distoortion",
     "m_Position": {
-        "x": -1613.0,
-        "y": 517.0
+        "x": -1613.0001220703125,
+        "y": 517.0000610351563
     }
 }
 
@@ -1815,8 +1815,8 @@
     "m_ObjectId": "5fc3105191e9433ba63581319f115df6",
     "m_Title": "Surface noise",
     "m_Position": {
-        "x": -2175.0,
-        "y": -614.0
+        "x": -2175.000244140625,
+        "y": -614.0000610351563
     }
 }
 
@@ -1954,10 +1954,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -527.0000610351563,
-            "y": 707.0,
+            "x": -733.0,
+            "y": 707.0000610351563,
             "width": 208.0,
-            "height": 301.99993896484377
+            "height": 302.00006103515627
         }
     },
     "m_Slots": [
@@ -2089,7 +2089,7 @@
     "m_ObjectId": "705a5fb7f0134e7999f9bbe6d5dce673",
     "m_Title": "Polar distortion",
     "m_Position": {
-        "x": -2165.0,
+        "x": -2165.000244140625,
         "y": 1324.0001220703125
     }
 }
@@ -2868,9 +2868,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -975.0000610351563,
+            "x": -1278.000244140625,
             "y": 576.0000610351563,
-            "width": 208.00006103515626,
+            "width": 208.0001220703125,
             "height": 433.00006103515627
         }
     },
@@ -2911,7 +2911,7 @@
         "m_SerializableColors": []
     },
     "m_TextureType": 0,
-    "m_NormalMapSpace": 0,
+    "m_NormalMapSpace": 1,
     "m_EnableGlobalMipBias": true,
     "m_MipSamplingMode": 0
 }
@@ -3823,7 +3823,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "X",
     "m_StageCapability": 3,
-    "m_Value": 1.3600000143051148,
+    "m_Value": 1.0,
     "m_DefaultValue": 0.0,
     "m_Labels": [],
     "m_LiteralMode": false
