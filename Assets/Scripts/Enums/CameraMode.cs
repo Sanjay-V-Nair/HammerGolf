@@ -5,6 +5,7 @@ namespace HammerGolf
 	public enum CameraMode
 	{
 		FollowPlayer,
-		FollowBall
+		FollowBall,
+		FreeCam
 	} 
 }

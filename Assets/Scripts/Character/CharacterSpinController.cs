@@ -135,6 +135,12 @@ namespace HammerGolf
         {
             spinState = SpinState.Idle;
         }
+
+        public void ResetState()
+        {
+            spinState = SpinState.Idle;
+            spinSpeed = 0f;
+        }
     } 
 }
 

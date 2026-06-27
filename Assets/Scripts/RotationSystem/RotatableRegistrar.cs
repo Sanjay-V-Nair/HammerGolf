@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace HammerGolf.RotationSystem {
 
@@ -63,6 +63,18 @@ namespace HammerGolf.RotationSystem {
         private void OnDisable() {
             if (_rotatable != null && RotationController.HasInstance)
                 RotationController.Instance.Deregister(_rotatable, _resolvedColliders);
+        }
+
+        public void SetRotatable(IRotatable newRotatable) {
+            if (enabled && _rotatable != null && RotationController.HasInstance) {
+                RotationController.Instance.Deregister(_rotatable, _resolvedColliders);
+            }
+            
+            _rotatable = newRotatable;
+            
+            if (enabled && _rotatable != null && RotationController.HasInstance) {
+                RotationController.Instance.Register(_rotatable, _resolvedColliders);
+            }
         }
     }
 }

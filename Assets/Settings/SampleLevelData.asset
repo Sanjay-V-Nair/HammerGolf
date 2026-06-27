@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03cb9301f3b766f4d8a37d6f66c2ab15, type: 3}
+  m_Name: SampleLevelData
+  m_EditorClassIdentifier: Assembly-CSharp::HammerGolf.LevelSystem.LevelData
+  playerSpawnPosition: {x: 0, y: 1, z: 0}
+  goalPrefab: {fileID: 8871404227850280211, guid: 93d87636b5105394aa5256bf23dfdaa2, type: 3}
+  goalPosition: {x: 0, y: 0, z: 30}
+  obstacles:
+  - type: 0
+    prefab1: {fileID: 6178869578767331420, guid: 956d2596f2075a646bc3d91604b58401, type: 3}
+    position1: {x: 0, y: 0, z: 5}
+    eulerAngles1: {x: 0, y: 0, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: 0, y: 0, z: 0}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 0
+    rotationAxis: {x: 0, y: 0, z: 0}
+  - type: 0
+    prefab1: {fileID: 6703475614679003522, guid: 2b73bd1c6d82e04488991c1c19dd77dd, type: 3}
+    position1: {x: 0, y: 0, z: 10}
+    eulerAngles1: {x: 0, y: 0, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: 0, y: 0, z: 0}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 1
+    rotationAxis: {x: 0, y: 0, z: 1}
+  - type: 1
+    prefab1: {fileID: 3663389935969653772, guid: 3af4f5ce5c3a0e04e94e2951d45c43fd, type: 3}
+    position1: {x: 3, y: 0, z: 15}
+    eulerAngles1: {x: 0, y: 0, z: 0}
+    prefab2: {fileID: 3663389935969653772, guid: 3af4f5ce5c3a0e04e94e2951d45c43fd, type: 3}
+    position2: {x: -3, y: 0, z: 15}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 0
+    rotationAxis: {x: 0, y: 0, z: 0}

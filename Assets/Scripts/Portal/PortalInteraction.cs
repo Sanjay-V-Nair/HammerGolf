@@ -16,6 +16,11 @@ namespace HammerGolf
         public float Cooldown { get => cooldown; }
         public float LastTeleportTime { get => _lastTeleportTime; }
 
+        public void SetLinkedPortal(PortalInteraction other)
+        {
+            linkedPortal = other;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (!other.TryGetComponent(out Rigidbody rb))

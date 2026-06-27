@@ -29,6 +29,9 @@ namespace HammerGolf
         [SerializeField] float minPitch = -20f;
         [SerializeField] float maxPitch = 70f;
 
+        [Header("Free Cam")]
+        [SerializeField] float freeCamSpeed = 15f;
+
         #endregion
 
         #region Cache
@@ -89,9 +92,49 @@ namespace HammerGolf
             currentTarget = player;
         }
 
+        public void SwitchToFreeCam()
+        {
+            currentMode = CameraMode.FreeCam;
+        }
+
         private void LateUpdate()
         {
-            OrbitTarget();
+            if (currentMode == CameraMode.FreeCam)
+            {
+                FreeCamMovement();
+            }
+            else
+            {
+                OrbitTarget();
+            }
+        }
+
+        private Vector3 freeCamVelocity = Vector3.zero;
+
+        private void FreeCamMovement()
+        {
+            Vector2 lookInput = input.Gameplay.Look.ReadValue<Vector2>();
+
+            mouseYaw += lookInput.x * mouseSensitivity * Time.deltaTime;
+            mousePitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
+            mousePitch = Mathf.Clamp(mousePitch, minPitch, maxPitch);
+
+            Quaternion targetRotation = Quaternion.Euler(mousePitch, mouseYaw, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 20f);
+
+            Vector3 moveDir = Vector3.zero;
+            if (UnityEngine.InputSystem.Keyboard.current.wKey.isPressed) moveDir += transform.forward;
+            if (UnityEngine.InputSystem.Keyboard.current.sKey.isPressed) moveDir -= transform.forward;
+            if (UnityEngine.InputSystem.Keyboard.current.aKey.isPressed) moveDir -= transform.right;
+            if (UnityEngine.InputSystem.Keyboard.current.dKey.isPressed) moveDir += transform.right;
+            if (UnityEngine.InputSystem.Keyboard.current.spaceKey.isPressed) moveDir += transform.up;
+            if (UnityEngine.InputSystem.Keyboard.current.eKey.isPressed) moveDir += transform.up;
+            if (UnityEngine.InputSystem.Keyboard.current.qKey.isPressed) moveDir -= transform.up;
+
+            Vector3 targetVelocity = moveDir.normalized * freeCamSpeed;
+            freeCamVelocity = Vector3.Lerp(freeCamVelocity, targetVelocity, Time.deltaTime * 10f);
+            
+            transform.position += freeCamVelocity * Time.deltaTime;
         }
 
         private void OrbitTarget()
