@@ -59,13 +59,11 @@ namespace HammerGolf
 
         private void OnEnable()
         {
-            input.Enable();
             transform.LookAt(currentTarget);
         }
 
         private void OnDisable()
         {
-            input.Disable();
         }
 
         private void OnSwitchToBall(object sender, EventArgs e)
