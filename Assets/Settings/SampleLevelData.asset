@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HammerGolf.LevelSystem.LevelData
   playerSpawnPosition: {x: 0, y: 1, z: 0}
   goalPrefab: {fileID: 8871404227850280211, guid: 93d87636b5105394aa5256bf23dfdaa2, type: 3}
-  goalPosition: {x: 0, y: 0, z: 30}
+  goalPosition: {x: 0, y: 0, z: 40}
   obstacles:
   - type: 0
     prefab1: {fileID: 6178869578767331420, guid: 956d2596f2075a646bc3d91604b58401, type: 3}
@@ -39,7 +39,43 @@ MonoBehaviour:
     position1: {x: 3, y: 0, z: 15}
     eulerAngles1: {x: 0, y: 0, z: 0}
     prefab2: {fileID: 3663389935969653772, guid: 3af4f5ce5c3a0e04e94e2951d45c43fd, type: 3}
-    position2: {x: -3, y: 0, z: 15}
+    position2: {x: -3, y: 0, z: 25}
     eulerAngles2: {x: 0, y: 0, z: 0}
     isRotatable: 0
     rotationAxis: {x: 0, y: 0, z: 0}
+  - type: 0
+    prefab1: {fileID: 6703475614679003522, guid: 2b73bd1c6d82e04488991c1c19dd77dd, type: 3}
+    position1: {x: 10, y: 0, z: 30}
+    eulerAngles1: {x: 0, y: 45, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: -3, y: 0, z: 25}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 1
+    rotationAxis: {x: 0, y: 1, z: 0}
+  - type: 0
+    prefab1: {fileID: 6703475614679003522, guid: 2b73bd1c6d82e04488991c1c19dd77dd, type: 3}
+    position1: {x: 0, y: 10, z: 30}
+    eulerAngles1: {x: 45, y: 0, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: -3, y: 0, z: 25}
+    eulerAngles2: {x: 1, y: 0, z: 0}
+    isRotatable: 1
+    rotationAxis: {x: 1, y: 0, z: 0}
+  - type: 0
+    prefab1: {fileID: 3955225062599222041, guid: 04049b87fe4bb13448b5d5a7da263c73, type: 3}
+    position1: {x: 3, y: 0, z: 30}
+    eulerAngles1: {x: 0, y: 45, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: -3, y: 0, z: 25}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 1
+    rotationAxis: {x: 0, y: 0, z: 1}
+  - type: 0
+    prefab1: {fileID: 6152160905758473728, guid: ac4c518b9528dd3409c78fb817bd07de, type: 3}
+    position1: {x: 20, y: 0, z: 25}
+    eulerAngles1: {x: 0, y: 0, z: 0}
+    prefab2: {fileID: 0}
+    position2: {x: 0, y: 0, z: 0}
+    eulerAngles2: {x: 0, y: 0, z: 0}
+    isRotatable: 1
+    rotationAxis: {x: 0, y: 1, z: 0}

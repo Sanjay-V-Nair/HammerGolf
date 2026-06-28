@@ -29,6 +29,8 @@ namespace HammerGolf
 
         public event System.Action<Rigidbody> OnThrown;
         public event System.Action OnTimeoutReset;
+        public static event System.Action OnBallTimeout;
+        public static event System.Action OnBallAlmostTimeout;
 
 
         // ---------------------------------------------------------------
@@ -40,6 +42,7 @@ namespace HammerGolf
         Vector3 _uninitializedVector = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
         Vector3 _lastThrownFrom = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
         float travelTimer = 0f;
+        bool almostTimeoutTriggered = false;
 
         // ---------------------------------------------------------------
         #endregion
@@ -82,10 +85,18 @@ namespace HammerGolf
             if (_rb != null && !_rb.isKinematic)
             {
                 travelTimer += Time.deltaTime;
+
+                if (!almostTimeoutTriggered && travelTimer >= travelTimeout - 2f)
+                {
+                    almostTimeoutTriggered = true;
+                    OnBallAlmostTimeout?.Invoke();
+                }
+
                 if (travelTimer >= travelTimeout)
                 {
                     OnTimeoutReset?.Invoke();
-                    ReturnToLastShotSafe();
+                    travelTimer = float.NegativeInfinity;
+                    OnBallTimeout?.Invoke();
                 }
             }
         }
@@ -93,11 +104,13 @@ namespace HammerGolf
         void OnCollisionEnter(Collision collision)
         {
             travelTimer = 0f;
+            almostTimeoutTriggered = false;
         }
 
         void OnTriggerEnter(Collider other)
         {
             travelTimer = 0f;
+            almostTimeoutTriggered = false;
         }
 
         void HandleReleased(float normalizedSpin, float facingAngle)
@@ -127,6 +140,7 @@ namespace HammerGolf
 
             _lastThrownFrom = spinController.transform.position;
             travelTimer = 0f;
+            almostTimeoutTriggered = false;
         }
 
         void SetOrbiting(bool orbiting)
@@ -142,6 +156,7 @@ namespace HammerGolf
             SetOrbiting(true);
             SnapToOrbit(orbitPivot.eulerAngles.y);
             travelTimer = 0f;
+            almostTimeoutTriggered = false;
         }
 
         public void ReturnToLastShot()
@@ -154,6 +169,7 @@ namespace HammerGolf
             SetOrbiting(true);
             SnapToOrbit(orbitPivot.eulerAngles.y);
             travelTimer = 0f;
+            almostTimeoutTriggered = false;
 
             if (spinController != null)
             {

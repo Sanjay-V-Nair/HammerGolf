@@ -75,6 +75,8 @@ namespace HammerGolf
 
         void Update()
         {
+            if (!HammerGolf.Gameplay.GameplayManager.IsGameActive) return;
+
             Debug.Log($"Current spin state: {spinState}");
 
             if (!IsCharging && CanCharge)
